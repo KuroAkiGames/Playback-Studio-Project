@@ -147,7 +147,7 @@ public class PlayerController : MonoBehaviour
     private void Respawn()
     {
         isDead = false;
-        anim.SetTrigger("idle");  // Trigger respawn animation if you have one.
+        anim.SetTrigger("idle"); 
 
         // Reset position and enable movement
         transform.position = respawnPoint.position;
