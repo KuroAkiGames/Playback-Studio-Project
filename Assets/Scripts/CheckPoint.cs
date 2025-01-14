@@ -53,33 +53,33 @@ public class Checkpoint : MonoBehaviour
             // to show the player that they've activated the checkpoint.
             ChangeCheckpointColor();
         }
+    }
 
-        private void Update()
+    private void Update()
+    {
+        // Adjust the volume of the sound based on the distance from the player
+        if (audioSource.isPlaying)
         {
-            // Adjust the volume of the sound based on the distance from the player
-            if (audioSource.isPlaying)
-            {
-                // Calculate the distance between the player and the checkpoint
-                float distance = Vector2.Distance(transform.position, Camera.main.transform.position);
+            // Calculate the distance between the player and the checkpoint
+            float distance = Vector2.Distance(transform.position, Camera.main.transform.position);
 
-                // Normalize the distance to adjust volume (you can change these values based on the desired range)
-                float maxDistance = 10f; // The maximum distance for full volume (you can adjust this)
-                float minDistance = 0f;  // The minimum distance where the sound is at full volume
+            // Normalize the distance to adjust volume (you can change these values based on the desired range)
+            float maxDistance = 10f; // The maximum distance for full volume (you can adjust this)
+            float minDistance = 0f;  // The minimum distance where the sound is at full volume
 
-                // Adjust the volume based on the distance
-                float volume = Mathf.Clamp01(1 - (distance / maxDistance));
-                audioSource.volume = volume;
-            }
+            // Adjust the volume based on the distance
+            float volume = Mathf.Clamp01(1 - (distance / maxDistance));
+            audioSource.volume = volume;
         }
-        // You can call this method to give some feedback when the checkpoint is activated.
-        private void ChangeCheckpointColor()
+    }
+
+    private void ChangeCheckpointColor()
+    {
+        // Example: Change the checkpoint to green (indicating it has been activated).
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null)
         {
-            // Example: Change the checkpoint to green (indicating it has been activated).
-            SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            if (sr != null)
-            {
-                sr.color = Color.white;
-            }
+            sr.color = Color.white;
         }
     }
 }
