@@ -1,0 +1,43 @@
+using UnityEngine;
+using System.Collections;
+
+public class DemonHealth : MonoBehaviour {
+	public int maxHealth = 250;
+	public int curHealth = 250;
+	
+	public float healthBarLength;
+	
+	// Use this for initialization
+	void Start () {
+		healthBarLength = Screen.width / 2;
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		AddjustCurrentHealth(0);
+	}
+	
+	void OnGUI(){
+		GUI.Box(new Rect(800, 50, healthBarLength, 20), curHealth + "/" + maxHealth);
+	}
+	
+	public void AddjustCurrentHealth(int adj) {
+		curHealth += adj;
+		
+		if(curHealth < 1)
+			curHealth = 0;
+		
+		if(curHealth > maxHealth)
+			curHealth = maxHealth;
+		
+		if(maxHealth < 1)
+			maxHealth = 1;
+			
+			healthBarLength = (Screen.width / 2) * (curHealth / (float)maxHealth);
+		
+		if (curHealth <=1)
+	{
+	Destroy (gameObject);
+	}
+	}
+}
