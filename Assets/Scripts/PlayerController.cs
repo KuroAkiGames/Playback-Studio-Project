@@ -4,7 +4,10 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
     public float movePower = 5f;
-    public float jumpPower = 10f; // Set Gravity Scale in Rigidbody2D Component to 5
+    public float jumpPower = 10f; // Normal jump power
+    public float superJumpPower = 20f; // Power for Super Jump
+    public float flightControlPower = 5f; // Control for flight (upward/downward force)
+    public float gravityScaleWhenFlying = 0.5f; // Reduced gravity when flying
 
     [Header("Respawn System")]
     public Transform respawnPoint; // Current respawn point (updated dynamically by checkpoints)
@@ -19,6 +22,10 @@ public class PlayerController : MonoBehaviour
     private float moveInput;
 
     public Animator uiAnim;
+
+    // Super Jump/Flight Flag
+    private bool canSuperJump = false;  // To track if the player has the skill
+    private bool isFlying = false; // To track if the player is flying
 
     void Start()
     {
@@ -37,6 +44,9 @@ public class PlayerController : MonoBehaviour
             respawnPoint.position = transform.position; // Default to the player's starting position
         }
         Respawn();
+
+        // Check if the player has unlocked the Super Jump/Flight skill
+        canSuperJump = PlayerProgress.hasSuperJump;
     }
 
     void Update()
@@ -45,6 +55,7 @@ public class PlayerController : MonoBehaviour
 
         HandleMovement();
         HandleJump();
+        HandleSuperJumpOrFlight();  // Handle Super Jump or Flight input
         HandleAttack();
         UpdateAnimations();
     }
@@ -82,21 +93,54 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (isJumping)
+        if (isJumping || isFlying)
         {
-            return; // If the player is already jumping, don't handle another jump until landing
+            return; // If the player is already jumping or flying, don't handle another jump
         }
 
-        // Jump when pressing the jump button (or up arrow)
+        // Normal Jump when pressing the jump button
         if ((Input.GetButtonDown("Jump") || Input.GetAxisRaw("Vertical") > 0) && !anim.GetBool("isJump"))
         {
             isJumping = true;
             anim.SetBool("isJump", true);
 
-            // Apply jump force
+            // Apply normal jump force
             Vector2 jumpVelocity = new Vector2(0, jumpPower);
             rb.velocity = new Vector2(rb.velocity.x, 0); // Zero out vertical velocity before jumping
             rb.AddForce(jumpVelocity, ForceMode2D.Impulse);
+        }
+    }
+
+    private void HandleSuperJumpOrFlight()
+    {
+        // If the player has the Super Jump skill, allow flight-like behavior
+        if (canSuperJump)
+        {
+            if (Input.GetButtonDown("Jump") && !isJumping && !isFlying)
+            {
+                // Start flying (super jump effect)
+                isFlying = true;
+                anim.SetBool("isJump", true);
+                rb.gravityScale = gravityScaleWhenFlying;  // Reduced gravity during flight
+            }
+
+            if (isFlying)
+            {
+                // Handle continuous upward/downward control during flight
+                if (Input.GetButton("Jump"))
+                {
+                    // Fly upward (apply a small constant force upward)
+                    rb.velocity = new Vector2(rb.velocity.x, flightControlPower);
+                }
+                else if (Input.GetButtonUp("Jump"))
+                {
+                    // Stop flying when the jump button is released, let gravity pull the player down
+                    rb.velocity = new Vector2(rb.velocity.x, 0); // Stop vertical velocity
+                    isFlying = false;
+                    rb.gravityScale = 5; // Restore gravity to normal
+                    anim.SetBool("isJump", false);
+                }
+            }
         }
     }
 
@@ -140,8 +184,8 @@ public class PlayerController : MonoBehaviour
         rb.simulated = false;
 
         anim.SetBool("isRun", false);  // Make sure "isRun" is false to avoid running animation
-        anim.SetBool("isJump", false); // Make sure "isJump" is false to avoid jump animatio;n
-        uiAnim.SetBool("isLoaded", true); 
+        anim.SetBool("isJump", false); // Make sure "isJump" is false to avoid jump animation
+        uiAnim.SetBool("isLoaded", true);
 
         // Respawn after a delay
         Invoke(nameof(Respawn), 2f); // Delay to allow death animation to play
@@ -156,7 +200,6 @@ public class PlayerController : MonoBehaviour
         // Reset position and enable movement
         transform.position = respawnPoint.position;
         rb.simulated = true;
-
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
