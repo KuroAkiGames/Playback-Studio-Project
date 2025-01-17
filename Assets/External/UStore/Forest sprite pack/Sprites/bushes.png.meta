@@ -138,10 +138,10 @@ TextureImporter:
       name: bushes_0
       rect:
         serializedVersion: 2
-        x: 24
-        y: 43
-        width: 880
-        height: 575
+        x: 25
+        y: 46
+        width: 878
+        height: 572
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -183,7 +183,7 @@ TextureImporter:
         x: 2086
         y: 36
         width: 1016
-        height: 569
+        height: 570
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -201,9 +201,9 @@ TextureImporter:
       name: bushes_3
       rect:
         serializedVersion: 2
-        x: 3369
+        x: 3370
         y: 63
-        width: 991
+        width: 990
         height: 557
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -221,7 +221,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 3fb888b83e10f714ca7d34025482c3e4
     internalID: 0
     vertices: []
     indices: 
