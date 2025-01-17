@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     private bool isDead = false;
     private float moveInput;
 
+    public Animator uiAnim;
+
     void Start()
     {
         // Automatically assign components if missing
@@ -138,7 +140,8 @@ public class PlayerController : MonoBehaviour
         rb.simulated = false;
 
         anim.SetBool("isRun", false);  // Make sure "isRun" is false to avoid running animation
-        anim.SetBool("isJump", false); // Make sure "isJump" is false to avoid jump animation
+        anim.SetBool("isJump", false); // Make sure "isJump" is false to avoid jump animatio;n
+        uiAnim.SetBool("isLoaded", true); 
 
         // Respawn after a delay
         Invoke(nameof(Respawn), 2f); // Delay to allow death animation to play
@@ -148,6 +151,7 @@ public class PlayerController : MonoBehaviour
     {
         isDead = false;
         anim.SetTrigger("idle");
+        uiAnim.SetBool("isLoaded", false);
 
         // Reset position and enable movement
         transform.position = respawnPoint.position;

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class HealthSystemScript : MonoBehaviour
 {
@@ -8,6 +9,8 @@ public class HealthSystemScript : MonoBehaviour
     [Header("Health Settings")]
     [SerializeField] private float health;
     [SerializeField] private float initialHealth = 3;
+
+    public TextMeshProUGUI lifeText;
 
     [Header("Damage Settings")]
 
@@ -64,8 +67,6 @@ public class HealthSystemScript : MonoBehaviour
             playerController.TakeDamage();
             Debug.Log("Kill Player");
             
-
-
             StartCoroutine(HealthCoroutine());
 
         }
