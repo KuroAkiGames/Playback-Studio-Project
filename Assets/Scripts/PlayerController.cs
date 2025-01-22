@@ -9,9 +9,12 @@ public class PlayerController : MonoBehaviour
     public float flightControlPower = 5f; // Control for flight (upward/downward force)
     public float gravityScaleWhenFlying = 0.5f; // Reduced gravity when flying
 
+    [Header("Health System")]
+    public HealthManager healthManager;
+
     [Header("Respawn System")]
     public Transform respawnPoint; // Current respawn point (updated dynamically by checkpoints)
-    public int maxHealth = 1; // Set to 1 since any damage causes instant death
+    public int maxHealth = 3; // Set to 3 for full health (3 hits)
 
     [Header("References")]
     private Rigidbody2D rb;
@@ -168,21 +171,25 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage()
     {
-        if (isDead) return;
+        if (healthManager != null)
+        {
+            healthManager.TakeDamage(1); // Take 1 damage for non-lethal hits
+        }
 
-        // Instantly kill the character
-        Die();
+        if (healthManager.currentHealth <= 0)
+        {
+            TriggerDeathAnimation();
+        }
     }
 
-    private void Die()
+    public void TriggerDeathAnimation()
     {
-        anim.SetTrigger("die");
         isDead = true;
+        anim.SetTrigger("die");
 
         // Disable movement immediately
         rb.velocity = Vector2.zero;
         rb.simulated = false;
-
         anim.SetBool("isRun", false);  // Make sure "isRun" is false to avoid running animation
         anim.SetBool("isJump", false); // Make sure "isJump" is false to avoid jump animation
         uiAnim.SetBool("isLoaded", true);
@@ -191,7 +198,7 @@ public class PlayerController : MonoBehaviour
         Invoke(nameof(Respawn), 2f); // Delay to allow death animation to play
     }
 
-    private void Respawn()
+    public void Respawn()
     {
         isDead = false;
         anim.SetTrigger("idle");

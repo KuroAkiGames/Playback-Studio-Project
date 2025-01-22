@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/StartScreen.unity
+    guid: 461ee03ddb4bdcf46801c0db599abef7
+  - enabled: 1
     path: Assets/Scenes/Lv1Forest.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
@@ -14,4 +17,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Lv2Swamp.unity
     guid: 234d072e4a57e4da1b6228b89eeb8f8e
+  - enabled: 1
+    path: Assets/Scenes/GameOver.unity
+    guid: 1c5c111522642bc4d98deae6991550e7
   m_configObjects: {}

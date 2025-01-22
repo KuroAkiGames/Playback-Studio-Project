@@ -27,7 +27,7 @@ public class HealthSystemScript : MonoBehaviour
 
         //Get the Player Controller
         playerController = GetComponent<PlayerController>();
-        
+
     }
 
 
@@ -50,7 +50,7 @@ public class HealthSystemScript : MonoBehaviour
     {
 
         yield return new WaitForSeconds(2);
-        
+
         SetupHealth();
     }
 
@@ -60,13 +60,13 @@ public class HealthSystemScript : MonoBehaviour
         //Call Take Damage, current implemenation will kill player.
 
         health = health - damagevalue;
-        Debug.Log("Damage Dealt to Player: "+damagevalue+"Player Health: "+health);
+        Debug.Log("Damage Dealt to Player: " + damagevalue + "Player Health: " + health);
 
-        if(health <1)
+        if (health < 1)
         {
             playerController.TakeDamage();
             Debug.Log("Kill Player");
-            
+
             StartCoroutine(HealthCoroutine());
 
         }
