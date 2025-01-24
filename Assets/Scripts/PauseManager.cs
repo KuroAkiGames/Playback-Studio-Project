@@ -8,8 +8,11 @@ public class PauseManager : MonoBehaviour
     public GameObject pauseMenuUI; // The pause menu UI to toggle visibility
     public Slider volumeSlider; // Volume slider to control game volume
     public KeyCode pauseKey = KeyCode.P; // Key to toggle pause state
+    public Animator pauseMenuAnimator; // Animator for the pause menu
 
     private bool isPaused = false; // Track if the game is paused
+    private static readonly string FadeInTrigger = "FadeIn"; // Name of the FadeIn trigger
+    private static readonly string FadeOutTrigger = "FadeOut"; // Name of the FadeOut trigger
 
     void Start()
     {
@@ -26,7 +29,7 @@ public class PauseManager : MonoBehaviour
     void Update()
     {
         // Toggle pause when the specified key is pressed (P)
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(pauseKey))
         {
             if (isPaused)
                 ResumeGame();
@@ -41,6 +44,7 @@ public class PauseManager : MonoBehaviour
         isPaused = true;
         Time.timeScale = 0f; // Freeze game time (pauses all gameplay)
         pauseMenuUI.SetActive(true); // Show the pause menu
+        pauseMenuAnimator.SetTrigger(FadeInTrigger); // Play fade-in animation
     }
 
     // Resume the game (unfreeze time and hide the menu)
@@ -48,7 +52,17 @@ public class PauseManager : MonoBehaviour
     {
         isPaused = false;
         Time.timeScale = 1f; // Resume normal game time
-        pauseMenuUI.SetActive(false); // Hide the pause menu
+        pauseMenuAnimator.SetTrigger(FadeOutTrigger); // Play fade-out animation
+
+        // Delay hiding the pause menu UI until the fade-out animation is complete
+        StartCoroutine(HidePauseMenuAfterFadeOut());
+    }
+
+    // Coroutine to wait for fade-out animation to finish before hiding the menu
+    private System.Collections.IEnumerator HidePauseMenuAfterFadeOut()
+    {
+        yield return new WaitForSecondsRealtime(pauseMenuAnimator.GetCurrentAnimatorStateInfo(0).length);
+        pauseMenuUI.SetActive(false);
     }
 
     // Set the volume based on the slider's value

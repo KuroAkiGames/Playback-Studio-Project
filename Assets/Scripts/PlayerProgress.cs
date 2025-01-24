@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement; // Required to check the active scene
 
 public class PlayerProgress : MonoBehaviour
 {
@@ -15,6 +16,14 @@ public class PlayerProgress : MonoBehaviour
         {
             hasSuperJump = false;
         }
+
+        // Check if the current level is Lv2Swamp
+        if (SceneManager.GetActiveScene().name == "Lv2Swamp")
+        {
+            hasSuperJump = true; // Enable SuperJump for this level
+        }
+        Debug.Log($"SuperJump Enabled: {PlayerProgress.hasSuperJump}");
+
     }
 
     public static void UnlockSuperJump()

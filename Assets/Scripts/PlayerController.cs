@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     public float superJumpPower = 20f; // Power for Super Jump
     public float flightControlPower = 5f; // Control for flight (upward/downward force)
     public float gravityScaleWhenFlying = 0.5f; // Reduced gravity when flying
+    public float knockbackForce = 10f; // Adjust the knockback force as needed
 
     [Header("Health System")]
     public HealthManager healthManager;
@@ -25,6 +26,10 @@ public class PlayerController : MonoBehaviour
     private float moveInput;
 
     public Animator uiAnim;
+
+    private bool isAttacking = false;
+    private bool PlayerRayHit;
+    public bool DebugCollision;
 
     // Super Jump/Flight Flag
     private bool canSuperJump = false;  // To track if the player has the skill
@@ -61,6 +66,43 @@ public class PlayerController : MonoBehaviour
         HandleSuperJumpOrFlight();  // Handle Super Jump or Flight input
         HandleAttack();
         UpdateAnimations();
+
+        DebugPlayerCollision();
+
+
+    }
+
+    private void DebugPlayerCollision()
+    {
+        // Define the offset (e.g., 1 unit above the character's feet)
+        Vector3 offset = new Vector3(0, 2f, 0);
+
+        // Calculate the starting position of the raycast
+        Vector3 raycastOrigin = transform.position + offset;
+
+        // Perform the raycast
+        RaycastHit2D hit = Physics2D.Raycast(raycastOrigin, Vector2.right, 3f);
+
+        // Draw the debug ray for visualization
+        Debug.DrawRay(raycastOrigin, Vector2.right * 3, Color.red);
+
+        // Check the raycast result
+        if (hit)
+        {
+            PlayerRayHit = true;
+            if (DebugCollision)
+            {
+                Debug.Log("Hit is true");
+            }
+        }
+        else
+        {
+            PlayerRayHit = false;
+            if (DebugCollision)
+            {
+                Debug.Log("Hit is false");
+            }
+        }
     }
 
     private void HandleMovement()
@@ -123,7 +165,7 @@ public class PlayerController : MonoBehaviour
             {
                 // Start flying (super jump effect)
                 isFlying = true;
-                anim.SetBool("isJump", true);
+                anim.SetTrigger("isJump");
                 rb.gravityScale = gravityScaleWhenFlying;  // Reduced gravity during flight
             }
 
@@ -141,7 +183,7 @@ public class PlayerController : MonoBehaviour
                     rb.velocity = new Vector2(rb.velocity.x, 0); // Stop vertical velocity
                     isFlying = false;
                     rb.gravityScale = 5; // Restore gravity to normal
-                    anim.SetBool("isJump", false);
+                    //anim.SetBool("isJump", false);
                 }
             }
         }
@@ -164,23 +206,33 @@ public class PlayerController : MonoBehaviour
         // If grounded and not jumping, reset the jump animation
         if (Mathf.Approximately(rb.velocity.y, 0) && isJumping)
         {
-            anim.SetBool("isJump", false); // Reset jump animation when grounded
+            anim.SetTrigger("isLanding"); // Reset jump animation when grounded
             isJumping = false;
         }
     }
 
-    public void TakeDamage()
+    public void TakeDamage(Vector2 hitDirection)
     {
+        Debug.Log("Player took damage! Hit Direction: " + hitDirection);
+
         if (healthManager != null)
         {
             healthManager.TakeDamage(1); // Take 1 damage for non-lethal hits
         }
+
+        // Trigger the Hurt animation
+        anim.SetTrigger("hurt");
+
+        // Apply knockback in the opposite direction of the hit
+        Vector2 knockback = hitDirection.normalized * knockbackForce;
+        rb.velocity = new Vector2(knockback.x, rb.velocity.y); // Maintain current vertical velocity
 
         if (healthManager.currentHealth <= 0)
         {
             TriggerDeathAnimation();
         }
     }
+
 
     public void TriggerDeathAnimation()
     {

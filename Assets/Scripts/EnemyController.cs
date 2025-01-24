@@ -9,7 +9,7 @@ public class EnemyController : MonoBehaviour
     private bool movingRight = true; // Direction of movement
 
     [Header("Attack Settings")]
-    public float attackRange = 2f; // Range to detect the player
+    public float attackRange = 3f; // Range to detect the player
     public float attackCooldown = 1f; // Time between attacks
     private float attackTimer;
 
@@ -21,8 +21,12 @@ public class EnemyController : MonoBehaviour
     private Animator anim; // Reference to Animator
     private Rigidbody2D rb; // Reference to Rigidbody2D
     private Vector3 originalScale; // Store the original scale
+    private Vector2 CharacterDirection;
 
     private bool isAttacking = false;
+    private bool PlayerRayHit;
+    public bool DebugCollision;
+
 
     void Start()
     {
@@ -64,6 +68,41 @@ public class EnemyController : MonoBehaviour
         {
             AttackPlayer();
         }
+
+        DebugEnemyCollision();
+    }
+
+    private void DebugEnemyCollision()
+    {
+        // Define the offset (e.g., 1 unit above the character's feet)
+        Vector3 offset = new Vector3(0, 1f, 0);
+
+        // Calculate the starting position of the raycast
+        Vector3 raycastOrigin = transform.position + offset;
+
+        // Perform the raycast
+        RaycastHit2D hit = Physics2D.Raycast(raycastOrigin, CharacterDirection, attackRange);
+
+        // Draw the debug ray for visualization
+        Debug.DrawRay(raycastOrigin, CharacterDirection * attackRange, Color.red);
+
+        // Check the raycast result
+        if (hit)
+        {
+            PlayerRayHit = true;
+            if (DebugCollision)
+            {
+                Debug.Log("Hit is true");
+            }
+        }
+        else
+        {
+            PlayerRayHit = false;
+            if (DebugCollision)
+            {
+                Debug.Log("Hit is false");
+            }
+        }
     }
 
     private void Patrol()
@@ -78,12 +117,14 @@ public class EnemyController : MonoBehaviour
             rb.velocity = new Vector2(moveSpeed, 0); // Move right
             // Flip the sprite to face right (rotate 180 degrees)
             transform.rotation = Quaternion.Euler(0, 180, 0);
+            CharacterDirection = Vector2.right;
         }
         else
         {
             rb.velocity = new Vector2(-moveSpeed, 0); // Move left
             // Flip the sprite to face left (rotate 0 degrees)
             transform.rotation = Quaternion.Euler(0, 0, 0);
+            CharacterDirection = -Vector2.right;
         }
 
         // Switch direction when reaching boundaries
@@ -127,20 +168,25 @@ public class EnemyController : MonoBehaviour
         // Trigger attack animation
         anim.SetTrigger("Attack");
 
-        // Handle damage or interaction with the player (e.g., reduce health)
-        if (player != null && Vector2.Distance(transform.position, player.position) <= attackRange)
+        Debug.Log("Attack Range " + attackRange);
+
+        if (player != null && PlayerRayHit)
         {
             Debug.Log("Enemy attacks the player!");
 
-            // Call the TakeDamage method from the player's HealthManager script
-            HealthManager healthManager = player.GetComponent<HealthManager>();
-            if (healthManager != null)
+            // Get the PlayerController component
+            PlayerController playerController = player.GetComponent<PlayerController>();
+            if (playerController != null)
             {
-                healthManager.TakeDamage(1); // Deal 1 damage
+                // Calculate the hit direction
+                Vector2 hitDirection = (player.position - transform.position).normalized;
+
+                // Call the TakeDamage method with the hit direction
+                playerController.TakeDamage(hitDirection);
             }
             else
             {
-                Debug.LogWarning("HealthManager not found on player!");
+                Debug.LogWarning("PlayerController not found on player!");
             }
         }
 
