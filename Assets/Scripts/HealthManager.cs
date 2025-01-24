@@ -94,6 +94,10 @@ public class HealthManager : MonoBehaviour
         isDead = true;
         Debug.Log("Game Over!");
 
+        // Store the current scene name before loading the Game Over scene
+        PlayerPrefs.SetString("LastScene", SceneManager.GetActiveScene().name);
+        PlayerPrefs.Save(); // Ensure the data is saved to disk
+
         // Load the GameOver scene
         SceneManager.LoadScene("GameOver");
     }

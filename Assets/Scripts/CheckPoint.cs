@@ -65,7 +65,7 @@ public class Checkpoint : MonoBehaviour
 
             // Normalize the distance to adjust volume (you can change these values based on the desired range)
             float maxDistance = 10f; // The maximum distance for full volume (you can adjust this)
-            float minDistance = 0f;  // The minimum distance where the sound is at full volume
+            // float minDistance = 0f;  // The minimum distance where the sound is at full volume
 
             // Adjust the volume based on the distance
             float volume = Mathf.Clamp01(1 - (distance / maxDistance));
