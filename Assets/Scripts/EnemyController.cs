@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Health Settings")]
+    public int maxHealth = 1; // Maximum health
+    private int currentHealth; // Current health
+
     [Header("Patrol Settings")]
     public float moveSpeed = 2f; // Speed of enemy movement
     public float patrolRange = 5f; // Patrol distance (left and right)
@@ -30,6 +34,9 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+        // Initialize health
+        currentHealth = maxHealth;
+
         // Store the original scale at the start
         originalScale = transform.localScale;
 
@@ -198,5 +205,32 @@ public class EnemyController : MonoBehaviour
     private void ResetAttack()
     {
         isAttacking = false;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        currentHealth -= damage; // Reduce health by the damage amount
+
+        // Optional: Play damage animation or effect
+        anim.SetTrigger("get_hit");
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        // Play death animation
+        anim.SetTrigger("die");
+
+        // Disable enemy movement and collider
+        rb.velocity = Vector2.zero;
+        rb.isKinematic = true; // Stop physics interactions
+        GetComponent<Collider2D>().enabled = false;
+
+        // Destroy the enemy after a delay (to allow death animation to play)
+        Destroy(gameObject, 1f); // Adjust the delay as needed
     }
 }

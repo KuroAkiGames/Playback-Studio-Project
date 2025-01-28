@@ -8,6 +8,8 @@ TagManager:
   - Enemy
   - LoadingScreen
   - Firefly
+  - Environment
+  - Ground
   layers:
   - Default
   - TransparentFX

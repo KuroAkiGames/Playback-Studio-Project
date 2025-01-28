@@ -21388,7 +21388,6 @@ MonoBehaviour:
   pauseMenuUI: {fileID: 1899055919}
   volumeSlider: {fileID: 1723221833}
   pauseKey: 112
-  pauseMenuAnimator: {fileID: 1899055920}
 --- !u!4 &2105640721
 Transform:
   m_ObjectHideFlags: 0

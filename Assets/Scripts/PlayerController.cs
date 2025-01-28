@@ -13,6 +13,11 @@ public class PlayerController : MonoBehaviour
     [Header("Health System")]
     public HealthManager healthManager;
 
+    [Header("Spells")]
+    public GameObject magicArrowPrefab; // Assign the Magic Arrow prefab in the Inspector
+    public Transform spellSpawnPoint; // Position where the arrow will spawn
+    public float magicArrowCooldown = 2f; // Cooldown time for Magic Arrow
+
     [Header("Respawn System")]
     public Transform respawnPoint; // Current respawn point (updated dynamically by checkpoints)
     public int maxHealth = 3; // Set to 3 for full health (3 hits)
@@ -27,13 +32,16 @@ public class PlayerController : MonoBehaviour
 
     public Animator uiAnim;
 
-    private bool isAttacking = false;
-    private bool PlayerRayHit;
     public bool DebugCollision;
 
     // Super Jump/Flight Flag
     private bool canSuperJump = false;  // To track if the player has the skill
     private bool isFlying = false; // To track if the player is flying
+
+    // Cooldown Tracking
+    private bool isMagicArrowOnCooldown = false;
+    private float magicArrowCooldownTimer = 0f;
+    private bool isCastingMagicArrow = false; // Prevents spamming during animation or cooldown
 
     void Start()
     {
@@ -55,6 +63,7 @@ public class PlayerController : MonoBehaviour
 
         // Check if the player has unlocked the Super Jump/Flight skill
         canSuperJump = PlayerProgress.hasSuperJump;
+
     }
 
     void Update()
@@ -66,43 +75,9 @@ public class PlayerController : MonoBehaviour
         HandleSuperJumpOrFlight();  // Handle Super Jump or Flight input
         HandleAttack();
         UpdateAnimations();
+        UpdateCooldown(); // Update the magic arrow cooldown timer
+        UpdateAnimations();
 
-        DebugPlayerCollision();
-
-
-    }
-
-    private void DebugPlayerCollision()
-    {
-        // Define the offset (e.g., 1 unit above the character's feet)
-        Vector3 offset = new Vector3(0, 2f, 0);
-
-        // Calculate the starting position of the raycast
-        Vector3 raycastOrigin = transform.position + offset;
-
-        // Perform the raycast
-        RaycastHit2D hit = Physics2D.Raycast(raycastOrigin, Vector2.right, 3f);
-
-        // Draw the debug ray for visualization
-        Debug.DrawRay(raycastOrigin, Vector2.right * 3, Color.red);
-
-        // Check the raycast result
-        if (hit)
-        {
-            PlayerRayHit = true;
-            if (DebugCollision)
-            {
-                Debug.Log("Hit is true");
-            }
-        }
-        else
-        {
-            PlayerRayHit = false;
-            if (DebugCollision)
-            {
-                Debug.Log("Hit is false");
-            }
-        }
     }
 
     private void HandleMovement()
@@ -191,11 +166,44 @@ public class PlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
-        // Attack input (Alpha1 key)
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        // Check for input and that magic arrow is neither on cooldown nor mid-casting
+        if (Input.GetKeyDown(KeyCode.Alpha1) && !isMagicArrowOnCooldown && !isCastingMagicArrow)
         {
-            anim.SetTrigger("attack");
+            FireMagicArrow();
         }
+    }
+
+    private void FireMagicArrow()
+    {
+        // Prevent additional casting during the attack
+        isCastingMagicArrow = true;
+
+        // Trigger the attack animation
+        anim.SetTrigger("attack");
+
+        // Instantiate the magic arrow
+        GameObject magicArrow = Instantiate(magicArrowPrefab, spellSpawnPoint.position, Quaternion.identity);
+
+        // Adjust direction
+        Vector3 arrowScale = magicArrow.transform.localScale;
+        arrowScale.x *= direction;
+        magicArrow.transform.localScale = arrowScale;
+
+        Vector3 arrowRotation = magicArrow.transform.eulerAngles;
+        arrowRotation.z = direction == -1 ? 180f : 0f;
+        magicArrow.transform.eulerAngles = arrowRotation;
+
+        // Start the cooldown
+        isMagicArrowOnCooldown = true;
+        magicArrowCooldownTimer = magicArrowCooldown;
+
+        // Allow casting again after a short delay (sync with attack animation)
+        Invoke(nameof(ResetCasting), 0.5f); // Adjust delay as per the attack animation length
+    }
+
+    private void ResetCasting()
+    {
+        isCastingMagicArrow = false;
     }
 
     private void UpdateAnimations()
@@ -233,6 +241,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void UpdateCooldown()
+    {
+        // Decrement the cooldown timer if it is active
+        if (isMagicArrowOnCooldown)
+        {
+            magicArrowCooldownTimer -= Time.deltaTime;
+
+            if (magicArrowCooldownTimer <= 0f)
+            {
+                isMagicArrowOnCooldown = false;
+                magicArrowCooldownTimer = 0f; // Reset the timer
+            }
+        }
+    }
 
     public void TriggerDeathAnimation()
     {
@@ -254,7 +276,7 @@ public class PlayerController : MonoBehaviour
     {
         isDead = false;
         anim.SetTrigger("idle");
-        uiAnim.SetBool("isLoaded", false);
+        uiAnim.SetBool("isLoaded", false); 
 
         // Reset position and enable movement
         transform.position = respawnPoint.position;

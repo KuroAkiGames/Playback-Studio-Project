@@ -2,14 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-using UnityEngine;
-
-using UnityEngine;
-
-using UnityEngine;
-
-using UnityEngine;
-
 public class Pinecone : MonoBehaviour
 {
     [Header("Pinecone Settings")]
