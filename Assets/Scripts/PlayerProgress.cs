@@ -7,7 +7,6 @@ public class PlayerProgress : MonoBehaviour
 
     void Awake()
     {
-        // Load the progress state (will persist between scenes)
         if (PlayerPrefs.HasKey("HasSuperJump"))
         {
             hasSuperJump = PlayerPrefs.GetInt("HasSuperJump") == 1;
@@ -17,13 +16,11 @@ public class PlayerProgress : MonoBehaviour
             hasSuperJump = false;
         }
 
-        // Check if the current level is Lv2Swamp
         if (SceneManager.GetActiveScene().name == "Lv2Swamp")
         {
             hasSuperJump = true; // Enable SuperJump for this level
         }
-        Debug.Log($"SuperJump Enabled: {PlayerProgress.hasSuperJump}");
-
+        Debug.Log($"SuperJump Enabled in {SceneManager.GetActiveScene().name}: {hasSuperJump}");
     }
 
     public static void UnlockSuperJump()
